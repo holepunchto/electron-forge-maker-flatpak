@@ -1,6 +1,6 @@
 {
   "name": "@holepunchto/electron-forge-maker-flatpak",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "repo-template",
   "main": "index.js",
   "exports": {
