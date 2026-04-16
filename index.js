@@ -29,6 +29,10 @@ class MakerFlatpak extends MakerBase {
       throw new Error(`MakerFlatpak: metainfo needs to be defined: ${this.config.metainfo}`)
     }
 
+    if (!this.config.entrypoint) {
+      throw new Error(`MakerFlatpak: entrypoint needs to be defined: ${this.config.entrypoint}`)
+    }
+
     if (!this.config.comment) {
       throw new Error(`MakerFlatpak: comment needs to be defined: ${this.config.comment}`)
     }
@@ -45,6 +49,10 @@ class MakerFlatpak extends MakerBase {
       throw new Error(`MakerFlatpak: metainfo not found at ${this.config.metainfo}`)
     }
 
+    if (!fs.existsSync(this.config.entrypoint)) {
+      throw new Error(`MakerFlatpak: entrypoint not found at ${this.config.entrypoint}`)
+    }
+
     // Parse protocols
     const protocols = forgeConfig?.packagerConfig?.protocols || []
     const schemes = protocols.flatMap((p) => p?.schemes || []).filter(Boolean)
@@ -59,6 +67,7 @@ class MakerFlatpak extends MakerBase {
 
     // Write flatpak files
     const metainfoFile = path.join(flatpakDir, `${this.config.appId}.metainfo.xml`)
+    const entrypointFile = path.join(flatpakDir, path.basename(this.config.entrypoint))
     const iconFile = path.join(flatpakDir, `${this.config.appId}.png`)
     const desktopFile = path.join(flatpakDir, `${this.config.appId}.desktop`)
     const desktop = {
@@ -75,6 +84,7 @@ class MakerFlatpak extends MakerBase {
       ...Object.entries(desktop).map(([k, v]) => `${k}=${v}`)
     ]
     fs.copyFileSync(this.config.metainfo, metainfoFile)
+    fs.copyFileSync(this.config.entrypoint, entrypointFile)
     fs.copyFileSync(this.config.icon, iconFile)
     fs.writeFileSync(desktopFile, desktopLines.join('\n'), 'utf8')
 
@@ -88,6 +98,7 @@ class MakerFlatpak extends MakerBase {
       --exclude='${path.relative(buildDir, dir)}/AppRun' \
       -czvf ${outputFile} \
       ${path.relative(buildDir, metainfoFile)} \
+      ${path.relative(buildDir, entrypointFile)} \
       ${path.relative(buildDir, iconFile)} \
       ${path.relative(buildDir, desktopFile)} \
       ${path.relative(buildDir, dir)}`,
