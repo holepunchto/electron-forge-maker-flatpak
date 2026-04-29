@@ -15,8 +15,6 @@ class MakerFlatpak extends MakerBase {
   }
 
   async make({ dir, appName, packageJSON, targetArch, makeDir, forgeConfig }) {
-    console.log(this.config)
-
     if (!this.config.appId) {
       throw new Error(`MakerFlatpak: appId needs to be defined: ${this.config.appId}`)
     }
@@ -91,6 +89,10 @@ class MakerFlatpak extends MakerBase {
     const flatpakName = appName.toLowerCase().replace(/[^a-z0-9-]/g, '-')
     const { version } = packageJSON
     const outputFile = path.join(makeDir, `${flatpakName}_${version}_${targetArch}_flatpak.tar.gz`)
+
+    if (!fs.existsSync(makeDir)) {
+      fs.mkdirSync(makeDir, { recursive: true })
+    }
 
     execSync(
       `tar \
