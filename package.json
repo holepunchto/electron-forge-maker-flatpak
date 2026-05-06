@@ -1,5 +1,5 @@
 {
-  "name": "@holepunchto/electron-forge-maker-flatpak",
+  "name": "@pear-/electron-forge-maker-flatpak",
   "version": "0.0.3",
   "description": "repo-template",
   "main": "index.js",
