@@ -1,11 +1,11 @@
-# @holepunchto/electron-forge-maker-flatpak
+# pear-electron-forge-maker-flatpak
 
 An electron-forge builder for Flatpak.
 
 ## Usage
 
 ```bash
-npm install @holepunchto/electron-forge-maker-flatpak --save-dev
+npm install pear-electron-forge-maker-flatpak --save-dev
 ```
 
 ## forge.config.js
@@ -13,7 +13,7 @@ npm install @holepunchto/electron-forge-maker-flatpak --save-dev
 ```js
 makers: [
   {
-    name: '@holepunchto/electron-forge-maker-flatpak',
+    name: 'pear-electron-forge-maker-flatpak',
     platforms: ['linux'],
     config: {
       appId: 'io.keet.Keet',
