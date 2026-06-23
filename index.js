@@ -14,7 +14,7 @@ class MakerFlatpak extends MakerBase {
     return process.platform === 'linux'
   }
 
-  async make({ dir, appName, packageJSON, targetArch, makeDir, forgeConfig }) {
+  make({ dir, appName, packageJSON, targetArch, makeDir, forgeConfig }) {
     if (!this.config.appId) {
       throw new Error(`MakerFlatpak: appId needs to be defined: ${this.config.appId}`)
     }
