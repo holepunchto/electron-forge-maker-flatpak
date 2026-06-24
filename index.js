@@ -23,10 +23,6 @@ class MakerFlatpak extends MakerBase {
       throw new Error(`MakerFlatpak: icon needs to be defined: ${this.config.icon}`)
     }
 
-    if (!this.config.metainfo) {
-      throw new Error(`MakerFlatpak: metainfo needs to be defined: ${this.config.metainfo}`)
-    }
-
     if (!this.config.entrypoint) {
       throw new Error(`MakerFlatpak: entrypoint needs to be defined: ${this.config.entrypoint}`)
     }
@@ -43,7 +39,7 @@ class MakerFlatpak extends MakerBase {
       throw new Error(`MakerFlatpak: icon not found at ${this.config.icon}`)
     }
 
-    if (!fs.existsSync(this.config.metainfo)) {
+    if (this.config.metainfo && !fs.existsSync(this.config.metainfo)) {
       throw new Error(`MakerFlatpak: metainfo not found at ${this.config.metainfo}`)
     }
 
@@ -64,7 +60,9 @@ class MakerFlatpak extends MakerBase {
     fs.mkdirSync(flatpakDir)
 
     // Write flatpak files
-    const metainfoFile = path.join(flatpakDir, `${this.config.appId}.metainfo.xml`)
+    const metainfoFile = this.config.metainfo
+      ? path.join(flatpakDir, `${this.config.appId}.metainfo.xml`)
+      : null
     const entrypointFile = path.join(flatpakDir, path.basename(this.config.entrypoint))
     const iconFile = path.join(flatpakDir, `${this.config.appId}.png`)
     const desktopFile = path.join(flatpakDir, `${this.config.appId}.desktop`)
@@ -81,7 +79,9 @@ class MakerFlatpak extends MakerBase {
       '[Desktop Entry]',
       ...Object.entries(desktop).map(([k, v]) => `${k}=${v}`)
     ]
-    fs.copyFileSync(this.config.metainfo, metainfoFile)
+    if (this.config.metainfo) {
+      fs.copyFileSync(this.config.metainfo, metainfoFile)
+    }
     fs.copyFileSync(this.config.entrypoint, entrypointFile)
     fs.copyFileSync(this.config.icon, iconFile)
     fs.writeFileSync(desktopFile, desktopLines.join('\n'), 'utf8')
@@ -94,16 +94,20 @@ class MakerFlatpak extends MakerBase {
       fs.mkdirSync(makeDir, { recursive: true })
     }
 
+    const tarFiles = [
+      ...(metainfoFile ? [path.relative(buildDir, metainfoFile)] : []),
+      path.relative(buildDir, entrypointFile),
+      path.relative(buildDir, iconFile),
+      path.relative(buildDir, desktopFile),
+      path.relative(buildDir, dir)
+    ]
+
     execSync(
       `tar \
       --exclude='${path.relative(buildDir, dir)}/snap' \
       --exclude='${path.relative(buildDir, dir)}/AppRun' \
       -czvf ${outputFile} \
-      ${path.relative(buildDir, metainfoFile)} \
-      ${path.relative(buildDir, entrypointFile)} \
-      ${path.relative(buildDir, iconFile)} \
-      ${path.relative(buildDir, desktopFile)} \
-      ${path.relative(buildDir, dir)}`,
+      ${tarFiles.join(' ')}`,
       {
         cwd: buildDir,
         stdio: 'inherit',
