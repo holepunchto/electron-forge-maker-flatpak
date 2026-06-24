@@ -1,5 +1,5 @@
 const { MakerBase } = require('@electron-forge/maker-base')
-const { execSync } = require('child_process')
+const { execFileSync } = require('child_process')
 const path = require('path')
 const fs = require('fs')
 
@@ -94,27 +94,28 @@ class MakerFlatpak extends MakerBase {
       fs.mkdirSync(makeDir, { recursive: true })
     }
 
+    const relativeDir = path.relative(buildDir, dir)
+
     const tarFiles = [
       ...(metainfoFile ? [path.relative(buildDir, metainfoFile)] : []),
       path.relative(buildDir, entrypointFile),
       path.relative(buildDir, iconFile),
       path.relative(buildDir, desktopFile),
-      path.relative(buildDir, dir)
+      relativeDir
     ]
 
-    execSync(
-      `tar \
-      --exclude='${path.relative(buildDir, dir)}/snap' \
-      --exclude='${path.relative(buildDir, dir)}/AppRun' \
-      -czvf ${outputFile} \
-      ${tarFiles.join(' ')}`,
+    execFileSync(
+      'tar',
+      [
+        `--exclude=${relativeDir}/snap`,
+        `--exclude=${relativeDir}/AppRun`,
+        '-czvf',
+        outputFile,
+        ...tarFiles
+      ],
       {
         cwd: buildDir,
-        stdio: 'inherit',
-        shell: true,
-        env: {
-          ...process.env
-        }
+        stdio: 'inherit'
       }
     )
 
