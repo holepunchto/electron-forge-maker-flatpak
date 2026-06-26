@@ -23,10 +23,6 @@ class MakerFlatpak extends MakerBase {
       throw new Error(`MakerFlatpak: icon needs to be defined: ${this.config.icon}`)
     }
 
-    if (!this.config.entrypoint) {
-      throw new Error(`MakerFlatpak: entrypoint needs to be defined: ${this.config.entrypoint}`)
-    }
-
     if (!this.config.comment) {
       throw new Error(`MakerFlatpak: comment needs to be defined: ${this.config.comment}`)
     }
@@ -43,7 +39,7 @@ class MakerFlatpak extends MakerBase {
       throw new Error(`MakerFlatpak: metainfo not found at ${this.config.metainfo}`)
     }
 
-    if (!fs.existsSync(this.config.entrypoint)) {
+    if (this.config.entrypoint && !fs.existsSync(this.config.entrypoint)) {
       throw new Error(`MakerFlatpak: entrypoint not found at ${this.config.entrypoint}`)
     }
 
@@ -63,7 +59,7 @@ class MakerFlatpak extends MakerBase {
     const metainfoFile = this.config.metainfo
       ? path.join(flatpakDir, `${this.config.appId}.metainfo.xml`)
       : null
-    const entrypointFile = path.join(flatpakDir, path.basename(this.config.entrypoint))
+    const entrypointFile = path.join(flatpakDir, 'entrypoint.sh')
     const iconFile = path.join(flatpakDir, `${this.config.appId}.png`)
     const desktopFile = path.join(flatpakDir, `${this.config.appId}.desktop`)
     const desktop = {
@@ -82,7 +78,18 @@ class MakerFlatpak extends MakerBase {
     if (this.config.metainfo) {
       fs.copyFileSync(this.config.metainfo, metainfoFile)
     }
-    fs.copyFileSync(this.config.entrypoint, entrypointFile)
+    if (this.config.entrypoint) {
+      fs.copyFileSync(this.config.entrypoint, entrypointFile)
+    } else {
+      fs.writeFileSync(
+        entrypointFile,
+        `#!/bin/sh
+
+exec zypak-wrapper.sh /app/lib/\${FLATPAK_ID}/${appName} "$@"
+`,
+        { mode: 0o755 }
+      )
+    }
     fs.copyFileSync(this.config.icon, iconFile)
     fs.writeFileSync(desktopFile, desktopLines.join('\n'), 'utf8')
 
