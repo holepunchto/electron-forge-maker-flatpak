@@ -2,6 +2,13 @@
 
 An electron-forge builder for Flatpak.
 
+## Requirements
+
+- Electron Forge 8 (this package is ESM-only, as Forge 8 loads makers with `import()`)
+- Node.js >= 22.13.0
+
+For Electron Forge 7, use the 0.x releases of this package.
+
 ## Usage
 
 ```bash
