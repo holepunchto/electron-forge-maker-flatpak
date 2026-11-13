@@ -1,7 +1,7 @@
-const { MakerBase } = require('@electron-forge/maker-base')
-const { execFileSync } = require('child_process')
-const path = require('path')
-const fs = require('fs')
+import { MakerBase } from '@electron-forge/maker-base'
+import { execFileSync } from 'child_process'
+import path from 'path'
+import fs from 'fs'
 
 class MakerFlatpak extends MakerBase {
   name = 'flatpak'
@@ -130,4 +130,4 @@ exec zypak-wrapper.sh /app/lib/\${FLATPAK_ID}/${appName} "$@"
   }
 }
 
-module.exports = MakerFlatpak
+export default MakerFlatpak
